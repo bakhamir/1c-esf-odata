@@ -1,5 +1,7 @@
 # 1C:Fresh ЭСФ — OData, фаза 1
 
+> **Codex migration handoff (26.10.2026):** read [`AGENTS.md`](AGENTS.md), [`docs/SPEC.md`](docs/SPEC.md), [`docs/STATUS.md`](docs/STATUS.md), [`docs/DECISIONS.md`](docs/DECISIONS.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md) first. The sections below document earlier development phases and may refer to them as current. A narrowly scoped single-record production contract PATCH was later implemented and successfully verified; **the full invoice/receipt workflow is not implemented**. No further live writes are preauthorized.
+
 Безопасный прототип для изучения OData конфигурации «Бухгалтерия для Казахстана», ред. 3.0. Использует только стандартную библиотеку Python 3.12+; ничего не записывает в 1С. В коде нет POST/PATCH/PUT/DELETE и нет автоматического изменения прав доступа.
 
 ## Dry-run процессор (фаза 2)
@@ -104,6 +106,21 @@ python execute_contract.py --pending "pending_transavia.json" --contracts "contr
 содержимое, поэтому будущий исполнитель товаров будет отдельным модулем
 с гораздо более строгими проверками. Команды создания на основании и
 проведения также будут разрабатываться и испытываться отдельно.
+
+## Следующая фаза: поиск эталона связанного полученного СФ
+
+После успешного единичного PATCH договора изучаем уже существующие документы,
+созданные в 1С штатным способом. Это позволит сверить реальные связи и
+состав табличных частей перед первым POST нового счёта-фактуры:
+
+```powershell
+python reference_inspector.py --from-date 2026-09-21 --to-date 2026-10-13 --organization-key "57495537-f978-11ee-ad65-94de80502ae1" --counterparty-key "b711f358-7da3-11f0-8757-52540067a9c9" --limit 1 --output "reference_invoice.json"
+```
+
+Это исключительно GET-запросы. Отчёт показывает номер и дату ЭСФ, связь
+с полученным счётом-фактурой, реквизиты полученного СФ и структуру табличных
+частей. Если стандартный OData хранит ссылку не как обычный GUID, инспектор
+явно помечает её как требующую дальнейшей расшифровки.
 
 ## Подготовка
 

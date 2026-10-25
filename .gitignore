@@ -4,3 +4,14 @@ __pycache__/
 .venv/
 *.log
 *.json
+*.jsonl
+*.csv
+*.xlsx
+*.zip
+.env.*
+!.env.example
+.pytest_cache/
+.ruff_cache/
+reports/
+outputs/
+artifacts/
