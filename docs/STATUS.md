@@ -38,3 +38,11 @@ python reference_inspector.py --from-date 2026-09-21 --to-date 2026-10-13 --orga
 ```
 
 Last command reads production data (GET) but does not write. Keep `reference_invoice.json` untracked and redact before sharing.
+
+## Offline repository milestone (2026-10-26)
+
+- Verified on Python 3.12.10: 49 unit tests pass; no production requests performed.
+- reference_inspector report v2 validates ESF identity/date/scope, rejects malformed/truncated/paginated collections and sections, and rejects explicit invoice counterparty mismatches. Missing invoice counterparty remains explicitly unverified, not silently confirmed.
+- Reports distinguish absent invoice fields from null and absent/null/present sections; unsupported links are diagnostic anomalies. Metadata and receipts remain uninspected and explicitly flagged false.
+- README rewritten for actual capabilities. docs/IMPLEMENTATION_SPEC.md defines remaining gaps, staged implementation and acceptance criteria.
+- Still open: fixed prototype scope shared by all entry points, live contract revalidation before PATCH, before/after protected-field comparison, metadata mapping, receipt discovery, payload planner and recovery journal. No new write capability or authorization added.
