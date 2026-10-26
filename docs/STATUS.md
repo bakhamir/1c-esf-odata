@@ -88,3 +88,12 @@ Last command reads production data (GET) but does not write. Keep `reference_inv
 - Snapshot observer reports observed_linked_unposted_invoice, no issues. Selected ESF fields changed only DataVersion and invoice link/type; previous Posted=true, contract, date, rows and totals preserved.
 - Created SF is unposted/not deleted, correct org/supplier/contract, time 10:00:00, one service, no goods/bases, shipping confirmation false. Net/VAT/gross, product, quantity, price, currency and total match expected values; content empty and service turnover date unset. Incoming number equals ESF.Number.
 - Initial unposted reference now exists. Do not create another invoice for this ESF. OData create/link side-effect equivalence remains unproven. Raw before/after/invoice/observation files remain ignored in reports/.
+
+## Existing-invoice continuation and receipt planner (2026-10-26)
+
+- 8 GET only: current scoped ESF/invoice, exact-backlink receipt search, two known reference receipts, exact tax-kind/cost/department lookups. Source SF remains unposted; no direct-backlink receipt candidate. Zero matches does not exclude other link representations.
+- Added processor/receipt_planner.py and plan_receipt.py, synthetic fixtures and 11 tests. Validates linked SF against originating ESF, avoids repeated SF creation, rejects existing bases/receipt matches, checks schema/lookup types and Decimal values, prepares 12 header candidates and 1 target service row.
+- Incoming receipt date uses existing SF calendar date, supply string preserved exactly; receipt own date remains unknown with time 10:00:00 dependency. Required tax/cost/department values use validated existing catalogs; historical account defaults never copied.
+- Two reference receipts verify CPT Boolean + separate NU GUID and services enum/subconto types. Both incoming dates differ from SPEC; one expense differs. Deviations recorded, historical records untouched.
+- Local snapshot run: blocked with 7 receipt-stage reasons; no executable payload/transport. Current SF date/initial state are known for continuation, not generalized into universal defaults for future SF POST.
+- 86 unit tests pass; docs/RECEIPT_CONTINUATION.md contains results and proposed single native unposted-receipt experiment, awaiting separate confirmation. No new writes authorized or performed.

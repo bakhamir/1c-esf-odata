@@ -29,3 +29,7 @@ Only prototype supplier/org/contract and ESF dates 2026-09-21..2026-10-13. No IS
 ## Proposed next experiment — not authorized
 
 Final bounded GET found no initial unposted reference among known linked invoices. Target 28000019906 is already posted. See ONE_INVOICE_EXPERIMENT.md: user-executed native creation/save of one unposted SF with possible native link update, fresh before/after GET, no posting or receipt creation. Await explicit confirmation before the UI command. New offline observer and unit tests are ready (75 tests total); this is not a POST executor and does not eliminate creation-semantic blockers.
+
+## Receipt continuation implemented; next approval boundary
+
+The user-created SF is now a verified initial unposted reference. The earlier SF experiment has been completed by the user; do not repeat it. Added offline linked-receipt continuation (86 tests total), 12 header candidates/one service row, 7 explicit receipt-stage blockers. See RECEIPT_CONTINUATION.md. Next possible native experiment is **one unposted receipt** created by the user from the existing SF, with required analytics/incoming fields and preserved own date; it is not yet authorized. Implement recovery journal and complete defaults model before any OData creation executor. Posting remains a separate future confirmation in SPEC order.
