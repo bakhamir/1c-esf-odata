@@ -73,3 +73,11 @@ Last command reads production data (GET) but does not write. Keep `reference_inv
 - Added pure processor/invoice_evidence.py, synthetic fixtures and 13 tests. Planner v2 accepts repeated --pair and optional --catalogs, preserves qualified row types, rejects ambiguous joins/invalid numeric inputs, checks target catalogs, emits exact decimal-text candidates (NOT wire JSON) and new mismatch diagnostics.
 - Local production-snapshot run: five header candidates, one target service-row candidate, 5 pairs / 4 consistent / 9 matched rows, blocked with original 8 plus reference_contract_mismatch and unit_label_requires_confirmation. No original blocker is fully resolved; structural uncertainty narrowed but hidden command effects remain unknown.
 - 71 unit tests pass. Details and blocker-by-blocker GET strategy: DEEP_INVOICE_RESEARCH.md. No new write transport or command-equivalence claim.
+
+## Final GET boundary and native-creation observation preparation (2026-10-26)
+
+- Five additional GET only. Target 28000019906 is already posted, contract/scope correct, no invoice link, one item row. No active/inactive invoice with matching incoming number was found in scoped organization/counterparty; this does not exclude differently numbered duplicates.
+- Exact unit alternatives: zero Усл, one Усл. with full label Одна услуга, matching target references. No new unit or normalization performed. No unposted invoice among the 27 known linked references; no initial-state sample available from this bounded search.
+- Fresh metadata still exposes only Post/Unpost for ESF/invoice. Public platform Filling documentation does not reveal current application-specific handlers; current configuration source unavailable through published schema. No claim that all conceivable GET research is exhausted.
+- Added offline snapshot observer and four synthetic tests: selected-field diff, existing source Posted state, unposted created invoice, exact scope/link and stop-on-change diagnostics. No write or native UI command executed. 75 unit tests pass.
+- ONE_INVOICE_EXPERIMENT.md describes a proposed user-executed native creation/save of one unposted invoice, possible native ESF link update, before/after GET and no blind retry/automatic rollback. Separate confirmation required; no executable OData POST/PATCH preview approved.

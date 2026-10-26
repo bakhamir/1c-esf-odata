@@ -25,3 +25,7 @@
 ## Always
 
 Only prototype supplier/org/contract and ESF dates 2026-09-21..2026-10-13. No IS ESF signing/sending, direct SQL, rights/publication/config changes. No secrets/raw accounting fixtures in Git. Small tested commits, update STATUS/DECISIONS after each milestone; standard-library-only unless alternatives are discussed.
+
+## Proposed next experiment — not authorized
+
+Final bounded GET found no initial unposted reference among known linked invoices. Target 28000019906 is already posted. See ONE_INVOICE_EXPERIMENT.md: user-executed native creation/save of one unposted SF with possible native link update, fresh before/after GET, no posting or receipt creation. Await explicit confirmation before the UI command. New offline observer and unit tests are ready (75 tests total); this is not a POST executor and does not eliminate creation-semantic blockers.
