@@ -59,6 +59,7 @@ def schema_map(metadata: bytes, entity: str) -> dict:
             if target.startswith('Collection(') and target.endswith(')'):
                 target = target[11:-1]
             if not target.startswith('Edm.'):
+                field['ResolvedType'] = resolve(target)
                 pending.append(resolve(target))
     return {'entity': entity, 'root_type': resolve(sets[entity]), 'types': result}
 
@@ -70,7 +71,8 @@ def guid(value):
     return str(parsed)
 
 
-def plan_initial_invoice(metadata: bytes, target: dict, source: dict, sample: dict) -> dict:
+def plan_initial_invoice(metadata: bytes, target: dict, source: dict, sample: dict,
+                         reference_pairs=None, catalogs=None) -> dict:
     """Compare evidence, never infer that a final sample is a creation template."""
     maps = {entity: schema_map(metadata, entity) for entity in (ESF, INVOICE)}
     for doc in (target, source, sample):
@@ -136,6 +138,40 @@ def plan_initial_invoice(metadata: bytes, target: dict, source: dict, sample: di
         if not rows:
             blockers.append('empty_section:' + label)
     blockers.append('service_row_mapping_unverified')
+    from processor.invoice_evidence import compare_pairs, target_row_candidates, check_catalogs
+    # Existing call signatures remain valid. Extra evidence is compared, not trusted as a flag.
+    evidence = compare_pairs([(source, sample)] + list(reference_pairs or []))
+    if any(not pair['contract_consistent'] for pair in evidence['pairs']):
+        blockers.append('reference_contract_mismatch')
+    catalog_report = check_catalogs(target, catalogs)
+    if catalog_report['issues']:
+        blockers.extend(catalog_report['issues'])
+    service_property = next((field for field in maps[INVOICE]['types'][maps[INVOICE]['root_type']]
+                             if field['Name'] == 'Услуги'), {})
+    service_type = service_property.get('ResolvedType')
+    service_fields = {}
+    if header.get('Услуги', '').startswith('Collection(') and service_type in maps[INVOICE]['types']:
+        service_fields = {field['Name']: field['Type'] for field in maps[INVOICE]['types'][service_type]}
+    row_proposals = []
+    usable = [pair for pair in evidence['pairs'] if pair['contract_consistent']]
+    if len(usable) >= 2 and all(pair['row_match'] == 'unique_value_match'
+                               and pair.get('all_net_plus_vat_equal_gross') for pair in usable):
+        row_proposals, row_issues = target_row_candidates(target, service_fields)
+        blockers.extend(row_issues)
+    for destination, origin, expected in (
+            ('ВалютаДокумента_Key', 'Валюта_Key', 'Edm.Guid'),
+            ('НомерВходящегоДокумента', 'Number', 'Edm.String')):
+        if header.get(destination) == expected and origin in target:
+            value = target[origin]
+            valid = isinstance(value, str) and bool(value)
+            if expected == 'Edm.Guid':
+                try:
+                    guid(value)
+                except ValueError:
+                    valid = False
+            if valid:
+                candidates.append({'field': destination, 'source': 'target_esf.' + origin,
+                                   'value': value, 'mapping_status': 'observed_candidate_requires_semantic_confirmation'})
     row_candidates = []
     # A single-row example permits comparison, not a general positional join.
     if all(len(section_rows[label]) == 1 for label in ('source_esf_items', 'reference_invoice_services')):
@@ -151,10 +187,12 @@ def plan_initial_invoice(metadata: bytes, target: dict, source: dict, sample: di
                                    'equal_in_single_reference_pair': src in origin and dest in reference
                                    and origin[src] == reference[dest],
                                    'mapping_status': 'observation_only'})
-    return {'version': 1, 'mode': 'offline_discovery_plan', 'status': 'blocked',
+    return {'version': 2, 'mode': 'offline_discovery_plan', 'status': 'blocked',
             'execution_supported': False, 'payload_complete': False,
             'schema_maps': maps, 'field_map': field_map, 'sections': sections,
             'row_mapping_observations': row_candidates,
+            'reference_comparison': evidence, 'catalog_resolution': catalog_report,
+            'candidate_service_rows': row_proposals,
             'candidate_header_fields': candidates, 'supply_number': supply,
             'blockers': blockers,
             'dependencies': {'Date': 'read_created_invoice_date_then_set_time_10:00:00',
