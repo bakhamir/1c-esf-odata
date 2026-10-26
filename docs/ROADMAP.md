@@ -1,21 +1,27 @@
-# Roadmap for Codex (incremental, guarded)
+# Roadmap for Codex — checkpoint 2026-10-26
 
-## Next: read-only discovery
+## Proven milestones
 
-1. Inspect modules/tests; run unit suite and report pass/fail. Do not access production unless the user authorizes that action.
-2. Use `reference_inspector.py` output (one already-linked ESF) to identify required fields/relationships for received invoice and receipt. Compare field types from `$metadata` and existing document samples. Redact reports.
-3. Identify whether 1C's UI operations (`Перезаполнить ссылочные реквизиты`, `Создать на основании`, `Провести и закрыть`) have equivalent published standard OData behavior. Do not guess hidden side effects.
+- GET client, scanner, preflight, contract lookup, dry-run intentions and opt-in single-field contract PATCH exist. Only one historical PATCH was confirmed; no new mutations authorized.
+- Inspector v2 and offline initial invoice planner v2 exist. Fresh metadata and five real scoped ESF/invoice/receipt chains inspected read-only. Unit suite: 71 tests, no live tests.
+- Candidate plan: five header fields and one target service row; it remains blocked. Original eight unknowns are not fully eliminated. One contract-inconsistent reference and unit-label punctuation add explicit diagnostics. See DEEP_INVOICE_RESEARCH.md and STATUS.md.
 
-## Then: offline planning with tests
+## Next safe work, no production mutation
 
-4. Implement read-only lookup of exact reference keys for `Усл`, expense item, department, incoming document type; fail closed on duplicate/missing values.
-5. Implement a deterministic, fully validated payload planner with saved fixtures for invoice/receipt and per-row missing nomenclature/units. No POST, PATCH, or document posting in this phase.
-6. Add local SQLite journal (one ESF, current state, supply number, invoice date, linked refs, last successful step, error). Design idempotency/recovery around server reads.
+1. Obtain accessible documentation/help or read-only source analysis of the **current configuration's** creation/refill algorithm. Metadata shows only Post/Unpost for the three documents; it does not reveal form handlers. Do not infer that POST links ESF automatically.
+2. Confirm UI-to-field mappings for section F and existing unit Усл. versus required Усл. Use redacted UI evidence or configuration documentation; no new catalog item or correction merely to match spelling.
+3. Extend exact-key catalog validation to the remaining accounting fields. Cost and department each have one exact lookup result; verify the actual subconto types. УчитыватьКПН is Boolean, ВидУчетаНУ_Key is GUID, ВидВходящегоДокумента is string. Do not write the UI text НУ into a Boolean.
+4. Build a complete initial invoice field allowlist only for verified semantics; retain unknown Date, defaults, content, row date and link side effects as dependencies/blockers. Validate tax formulas/rounding with mixed/zero VAT and multirow synthetic cases before promoting observed mappings to rules. Preserve original decimal precision.
+5. Implement equivalent receipt planning with preserved document dates, required analytics, incoming number/date/type and all untouched accounting fields. Existing final-state reciprocal references are not a valid initial payload.
+6. Add shared immutable prototype guards to older entry points; independently re-read exact contract and compare protected ESF fields before/after any future approved PATCH. This gap is not fixed by the new planner's local guards.
+7. Implement local SQLite stage journal and single-process lock. Persist intent before request, inspect server after uncertain outcomes, no blind POST retries. Test interruption and duplicate prevention offline.
 
-## Only after explicit user approval
+## Requires future explicit authorization
 
-7. Preview **one** exact ESF's intended changes. Enable narrowly scoped, individually confirmed writes for one stage at a time, reading before and after. Avoid blind retries.
-8. Study generated accounting documents and entries against a user-approved example. Do not mark a document finished simply because HTTP returned 2xx.
-9. If end-to-end validation is proven, discuss guarded batch mode, initially tiny batches with logging/progress every five completed ESFs.
+8. If source/docs cannot establish command effects, prepare a reviewable **one-document, one-stage** experiment with exact scope, preview, recovery and before/after GET. Current permission is GET only; do not run this experiment now. Existing final-state examples cannot prove which write established links or changed registers.
+9. Only after complete validated payload and user approval introduce one stage of writes at a time. Keep --commit plus exact --confirm. Verify generated IDs, relations, status and accounting results; HTTP success is insufficient.
+10. Posting sequence per SPEC: receipt, received invoice, originating ESF; final verification of all links. Discuss small batches only after a proven single-document cycle and separate permission, with progress every five completed ESFs.
 
-Never submit or sign IS ESF invoices, change period/org scope, use direct SQL, or modify 1C publication/permission settings as a shortcut.
+## Always
+
+Only prototype supplier/org/contract and ESF dates 2026-09-21..2026-10-13. No IS ESF signing/sending, direct SQL, rights/publication/config changes. No secrets/raw accounting fixtures in Git. Small tested commits, update STATUS/DECISIONS after each milestone; standard-library-only unless alternatives are discussed.
