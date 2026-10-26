@@ -81,3 +81,10 @@ Last command reads production data (GET) but does not write. Keep `reference_inv
 - Fresh metadata still exposes only Post/Unpost for ESF/invoice. Public platform Filling documentation does not reveal current application-specific handlers; current configuration source unavailable through published schema. No claim that all conceivable GET research is exhausted.
 - Added offline snapshot observer and four synthetic tests: selected-field diff, existing source Posted state, unposted created invoice, exact scope/link and stop-on-change diagnostics. No write or native UI command executed. 75 unit tests pass.
 - ONE_INVOICE_EXPERIMENT.md describes a proposed user-executed native creation/save of one unposted invoice, possible native ESF link update, before/after GET and no blind retry/automatic rollback. Separate confirmation required; no executable OData POST/PATCH preview approved.
+
+## User-created initial invoice verified by GET
+
+- User reported completing the native creation/save for ESF 28000019906. Two exact GET requests verify its new received-invoice link and the linked invoice. No agent write.
+- Snapshot observer reports observed_linked_unposted_invoice, no issues. Selected ESF fields changed only DataVersion and invoice link/type; previous Posted=true, contract, date, rows and totals preserved.
+- Created SF is unposted/not deleted, correct org/supplier/contract, time 10:00:00, one service, no goods/bases, shipping confirmation false. Net/VAT/gross, product, quantity, price, currency and total match expected values; content empty and service turnover date unset. Incoming number equals ESF.Number.
+- Initial unposted reference now exists. Do not create another invoice for this ESF. OData create/link side-effect equivalence remains unproven. Raw before/after/invoice/observation files remain ignored in reports/.
