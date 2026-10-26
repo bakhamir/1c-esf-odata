@@ -46,3 +46,20 @@ Last command reads production data (GET) but does not write. Keep `reference_inv
 - Reports distinguish absent invoice fields from null and absent/null/present sections; unsupported links are diagnostic anomalies. Metadata and receipts remain uninspected and explicitly flagged false.
 - README rewritten for actual capabilities. docs/IMPLEMENTATION_SPEC.md defines remaining gaps, staged implementation and acceptance criteria.
 - Still open: fixed prototype scope shared by all entry points, live contract revalidation before PATCH, before/after protected-field comparison, metadata mapping, receipt discovery, payload planner and recovery journal. No new write capability or authorization added.
+
+## Read-only discovery milestone (2026-10-26)
+
+- User configured local credentials and authorized limited GET discovery. Seven GET requests completed; no writes or posting.
+- Metadata and one existing linked ESF/invoice/receipt chain inspected. Organization/counterparty matched; invoice and receipt are posted and not deleted. Invoice points to receipt in header and basis table; receipt points back to invoice. No direct origin ESF key match found within the fetched invoice values.
+- ESF invoice link is Edm.String plus _Type; selected link is a GUID string. Only bound Post/Unpost operations found for ESF and received invoice; no create-on-basis operation found in metadata for these types.
+- Target ESF still has the correct contract and no invoice link. No full completion claimed.
+- Raw reports/ files remain ignored. Structural results and remaining semantic blockers: INVOICE_LINK_DISCOVERY.md. Creation order and server side effects remain unproven; no executable POST payload approved.
+
+## Offline initial invoice discovery planner (2026-10-26)
+
+- Added processor/invoice_planner.py and plan_invoice.py. No transport imports in the planner, no credentials, no production requests in this milestone.
+- Resolves qualified metadata types and aliases, recursive row schemas and declared constraints; rejects missing types and unsupported inheritance. Existing entity_schema API remains unchanged.
+- Validates prototype scope, deletion states, ESF period, target contract/missing link and exact reference pair. Produces candidate header mappings only, not a POST payload. Unknown semantics/defaults/dates/refill/catalog mappings remain blockers.
+- Compares field presence and single-row reference values without exporting those values; multiple rows are not joined by position. Leading zeroes and whitespace in supply numbers are preserved. JSON decimals load as Decimal.
+- Tested against local production snapshots: plan is blocked with eight explicit blockers; no execution supported. Raw plan remains ignored under reports/. 58 unit tests pass.
+- Remaining full workflow: common scope guards for existing entry points; fresh contract validation and protected-field comparison for old PATCH; verified creation/link/refill semantics; exact catalog lookup; validated initial invoice and receipt payloads; SQLite recovery journal; individually approved writes; posting/verification; only then separately approved small batches.

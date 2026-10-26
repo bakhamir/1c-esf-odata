@@ -1,4 +1,4 @@
-﻿# Автоматизация входящих ЭСФ через OData 1С:Фреш
+# Автоматизация входящих ЭСФ через OData 1С:Фреш
 
 Продолжение Python-прототипа для «Бухгалтерии для Казахстана» 3.0.
 Python 3.12+, стандартная библиотека, unittest. Полный цикл создания и проведения документов пока не реализован.
@@ -36,7 +36,7 @@ python -m unittest discover -s tests -q
 python main.py plan-one --preflight esf_preflight_v2.json --contracts contract_lookup.json --output dryrun_one.json
 ```
 
-На 26.10.2026: **49 тестов проходят**, внешние вызовы заменены mock/фиктивными клиентами. Сообщение о неверном подтверждении в тестах ожидаемо: проверяется защитный барьер.
+На 26.10.2026: **58 тестов проходят**, внешние вызовы заменены mock/фиктивными клиентами. Сообщение о неверном подтверждении в тестах ожидаемо: проверяется защитный барьер.
 
 План содержит `blocked`, `ready_for_review`, `skip_already_linked`; GET-пакет может вернуть `read_error`. `prepare_*` — намерения, не готовые payload. План одного ЭСФ пока не проверяет фиксированный период прототипа. Пакетный dry-run читает производственную базу и не запускается автоматически.
 
@@ -61,3 +61,13 @@ python reference_inspector.py --from-date 2026-09-21 --to-date 2026-10-13 --orga
 Контекст: [AGENTS](AGENTS.md), [SPEC](docs/SPEC.md), [STATUS](docs/STATUS.md), [DECISIONS](docs/DECISIONS.md), [ROADMAP](docs/ROADMAP.md).
 
 Общее ТЗ продолжения, проблемы, решения и критерии приёмки: [IMPLEMENTATION_SPEC](docs/IMPLEMENTATION_SPEC.md).
+
+## Офлайн-план первоначального СФ
+
+Реализован отдельный диагностический этап (58 unit-тестов). Команда читает только локальные файлы и не требует авторизации:
+
+```powershell
+python plan_invoice.py --metadata reports/metadata.xml --target reports/target_esf_raw.json --source reports/linked_esf_raw.json --invoice reports/invoice_raw.json --output reports/initial_invoice_plan.json
+```
+
+Отчёт содержит раскрытую схему строк, присутствие полей, наблюдения по одной строке эталона, кандидаты трёх реквизитов шапки и блокирующие неизвестные. Это ещё не POST payload: status=blocked, payload_complete=false, execution_supported=false. Файл содержит частные ключи целевого документа и номер поставки; хранить только локально, не отправлять в Git.
